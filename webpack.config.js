@@ -8,31 +8,37 @@ const TARGET = process.env.npm_lifecycle_event;
 
 const PATHS = {
   app: path.join(__dirname, 'app'),
-  build: path.join(__dirname, 'build')
+  build: path.join(__dirname, 'build'),
 };
 
 const common = {
   // Entry accepts a path or an object of entries. We'll be using the
   // latter form given it's convenient with more complex configurations.
   entry: {
-    app: PATHS.app
+    app: PATHS.app,
+  },
+  // Add resolve.extensions.
+  // '' is needed to allow imports without an extension.
+  // Note the .'s before extensions as it will fail to match without!!!
+  resolve: {
+    extensions: ['', '.js', '.jsx'],
   },
   output: {
     path: PATHS.build,
-    filename: 'bundle.js'
+    filename: 'bundle.js',
   },
   module: {
     preLoaders: [
       {
         test: /\.jsx?$/,
         loaders: ['eslint'],
-        include: PATHS.app
+        include: PATHS.app,
       },
       {
         test: /\.css$/,
         loaders: ['postcss'],
-        include: PATHS.app
-      }
+        include: PATHS.app,
+      },
     ],
     loaders: [
       {
@@ -40,17 +46,27 @@ const common = {
         test: /\.css$/,
         loaders: ['style', 'css'],
         // Include accepts either a path or an array of paths.
-        include: PATHS.app
-      }
-    ]
+        include: PATHS.app,
+      },
+      {
+        test: /\.jsx?$/,
+        // Enable caching for improved performance during development
+        // It uses default OS directory by default. If you need something
+        // more custom, pass a path to it. I.e., babel?cacheDirectory=<path>
+        loaders: ['babel?cacheDirectory'],
+        // Parse only app files! Without this is will go through the entire project.
+        // In addition to being slow, that will most likely result in an error
+        include: PATHS.app,
+      },
+    ],
   },
-  postcss: function() {
+  postcss() {
     return [stylelint({
       rules: {
-        'color-hex-case': 'lower'
-      }
-    })]
-  }
+        'color-hex-case': 'lower',
+      },
+    })];
+  },
 };
 
 if (TARGET === 'start' || !TARGET) {
@@ -78,14 +94,14 @@ if (TARGET === 'start' || !TARGET) {
       // 0.0.0.0 is available to all network devices unlike default
       // localhost
       host: process.env.host,
-      port: process.env.port
+      port: process.env.port,
     },
     plugins: [
       new webpack.HotModuleReplacementPlugin(),
       new NpmInstallPlugin({
-        save: true // --save
-      })
-    ]
+        save: true, // --save
+      }),
+    ],
   });
 }
 
