@@ -1,12 +1,13 @@
 import React from 'react';
 import Note from './Note.jsx';
 
-const Notes = ({ notes, onEdit }) =>
+const Notes = ({ notes, onEdit, onDelete }) =>
   <ul>{notes.map(note =>
     <li key={note.id}>
       <Note
         task={note.task}
         onEdit={onEdit.bind(null, note.id)}
+        onDelete={onDelete.bind(null, note.id)}
       />
     </li>
   )}</ul>;
@@ -14,6 +15,7 @@ const Notes = ({ notes, onEdit }) =>
 Notes.propTypes = {
   notes: React.PropTypes.array.isRequired,
   onEdit: React.PropTypes.func.isRequired,
+  onDelete: React.PropTypes.func.isRequired,
 };
 
 module.exports = Notes;

@@ -2,7 +2,6 @@ import uuid from 'node-uuid';
 import React from 'react';
 import Notes from './Notes.jsx';
 
-/* eslint-disable */
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -20,21 +19,18 @@ export default class App extends React.Component {
           id: uuid.v4(),
           task: 'Do laundry',
         },
-      ]
-    }
+      ],
+    };
   }
-  render() {
-    const notes = this.state.notes;
-    return (
-      <div>
-        <button onClick={this.addNote}>+</button>
-        <Notes
-          notes={notes}
-          onEdit={this.editNote}
-        />
-      </div>
-    );
-  }
+
+  deleteNote = (id, e) => {
+    // Avoid bubbling t oedit
+    e.stopPropagation();
+
+    this.setState({
+      notes: this.state.notes.filter(note => note.id !== id),
+    });
+  };
   // We are using an experimental feature known as property
   // initializer here. It allows us to bind the method 'this'
   // to point at our *App* instance.
@@ -55,23 +51,36 @@ export default class App extends React.Component {
       notes: this.state.notes.concat([{
         id: uuid.v4(),
         task: 'New task',
-      }])
+      }]),
     });
   };
   editNote = (id, task) => {
     // Don't modify if trying to set an empty value
-    if(!task.trim()) {
+    if (!task.trim()) {
       return;
     }
 
     const notes = this.state.notes.map(note => {
       if (note.id === id && task) {
-        note.task = task;
+        note.task = task; // eslint-disable-line
       }
 
       return note;
     });
 
-    this.setState({notes});
+    this.setState({ notes });
   };
+  render() {
+    const notes = this.state.notes;
+    return (
+      <div>
+        <button onClick={this.addNote}>+</button>
+        <Notes
+          notes={notes}
+          onEdit={this.editNote}
+          onDelete={this.deleteNote}
+        />
+      </div>
+    );
+  }
 }

@@ -38,10 +38,15 @@ export default class Note extends React.Component {
     editing: true,
   });
   renderNote = () => {
+    const onDelete = this.props.onDelete;
+
     return (
-      <div onClick={this.edit}>{this.props.task}</div>
+      <div onClick={this.edit}>
+        <span>{this.props.task}</span>
+        {onDelete ? this.renderDelete() : null}
+      </div>
     );
-  }
+  };
   renderEdit = () => {
     // We deal with blur and input handlers here. These map to DOM events.
     // We also set selection to input end using a callback at a ref.
@@ -71,7 +76,10 @@ export default class Note extends React.Component {
         onKeyPress={this.checkEnter}
       />
     );
-  }
+  };
+  renderDelete = () => {
+    return <button onClick={this.props.onDelete}>x</button>;
+  };
   render() {
     if (this.state.editing) {
       return this.renderEdit();
@@ -82,15 +90,7 @@ export default class Note extends React.Component {
 Note.propTypes = {
   task: React.PropTypes.string.isRequired,
   onEdit: React.PropTypes.bool.isRequired,
+  onDelete: React.PropTypes.func.isRequired,
 };
 
 module.exports = Note;
-
-// export default class Note extends React.component {
-//   render() {
-//     console.log(this.props.task);
-//     return (
-//       <div>{this.props.task}</div>
-//     );
-//   }
-// }
