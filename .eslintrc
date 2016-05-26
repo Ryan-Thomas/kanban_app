@@ -1,5 +1,9 @@
 {
   "parser": "babel-eslint",
   "plugins": [],
-  "extends": "airbnb"
+  "extends": "airbnb",
+  "rules": {
+    "arrow-body-style": "off",
+    "react/jsx-no-bind": "off",
+  }
 }
