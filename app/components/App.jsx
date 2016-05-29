@@ -1,74 +1,40 @@
-import uuid from 'node-uuid';
 import React from 'react';
 import Notes from './Notes.jsx';
+import NoteStore from '../stores/NoteStore.js';
+import NoteActions from '../actions/NoteActions.js';
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      notes: [
-        {
-          id: uuid.v4(),
-          task: 'Learn Webpack',
-        },
-        {
-          id: uuid.v4(),
-          task: 'Learn React',
-        },
-        {
-          id: uuid.v4(),
-          task: 'Do laundry',
-        },
-      ],
-    };
+    this.state = NoteStore.getState();
   }
-
+  componentWillMount() {
+    NoteStore.unlisten(this.storeChanged);
+  }
+  componentDidMount() {
+    NoteStore.listen(this.storeChanged);
+  }
+  storeChanged = (state) => {
+    // Without a property initializer `this` wouldn't
+    // point at the right context because it defaults to
+    // `undefined` in strict mode.
+    this.setState(state);
+  };
   deleteNote = (id, e) => {
-    // Avoid bubbling t oedit
+    // Avoid bubbling to edit
     e.stopPropagation();
-
-    this.setState({
-      notes: this.state.notes.filter(note => note.id !== id),
-    });
+    NoteActions.delete(id);
   };
-  // We are using an experimental feature known as property
-  // initializer here. It allows us to bind the method 'this'
-  // to point at our *App* instance.
-  //
-  // Alternatively we could 'bind' at 'constructor' using
-  // a line, such as this.addNote = this.addNote.bind(this);
   addNote = () => {
-    // It would be possible to write this in an imperative style.
-    // I.e., through 'this.state.notes.push' and then
-    // 'this.setState({notes: this.state.notes})'' to commit
-    //
-    // I tend to favor functional styles whenever that makes sense.
-    // Even through it might take more code sometimes, I feel
-    // the benefits (easy to reason about, no side effects)
-    // more than make up for it.
-    // Libraries, such as Immutable.js, go a notch further.
-    this.setState({
-      notes: this.state.notes.concat([{
-        id: uuid.v4(),
-        task: 'New task',
-      }]),
-    });
-  };
+    NoteActions.create({ task: 'New Task' });
+  }
   editNote = (id, task) => {
     // Don't modify if trying to set an empty value
     if (!task.trim()) {
       return;
     }
 
-    const notes = this.state.notes.map(note => {
-      if (note.id === id && task) {
-        note.task = task; // eslint-disable-line
-      }
-
-      return note;
-    });
-
-    this.setState({ notes });
+    NoteActions.update({ id, task });
   };
   render() {
     const notes = this.state.notes;
